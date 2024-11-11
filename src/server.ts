@@ -7,11 +7,11 @@ const port = 3000;
 app.use(express.json());
 
 // 函數來創建 Worker 並處理運算
-function runWorker(operation: string, a: number, b: number): Promise<any> {
+function runWorker(operation: string, params: any[]): Promise<any> {
     return new Promise((resolve, reject) => {
       const worker = new Worker('./worker.ts');
   
-      worker.postMessage({ operation, a, b });
+      worker.postMessage({ operation, params });
   
       worker.on('message', (message) => {
         if (message.error) {
@@ -33,8 +33,8 @@ function runWorker(operation: string, a: number, b: number): Promise<any> {
     });
   }
   
-  // API 1: 加法
-  app.post('/add', async (req: Request, res: Response) => {
+  // API 1: 登入
+  app.post('/login', async (req: Request, res: Response) => {
     const { a, b } = req.body;
   
     if (typeof a !== 'number' || typeof b !== 'number') {
@@ -42,7 +42,7 @@ function runWorker(operation: string, a: number, b: number): Promise<any> {
     }
   
     try {
-      const result = await runWorker('add', a, b);
+      const result = await runWorker('login',[a,b]);
       res.json({ result });
     } catch (error) {
       res.status(500).send(error);
@@ -64,7 +64,7 @@ function runWorker(operation: string, a: number, b: number): Promise<any> {
     }
   
     try {
-      const result = await runWorker('subtract', a, b);
+      const result = await runWorker('subtract', [a,b]);
       res.json({ result });
     } catch (error) {
       res.status(500).send(error);
@@ -86,7 +86,7 @@ function runWorker(operation: string, a: number, b: number): Promise<any> {
     }
   
     try {
-      const result = await runWorker('multiply', a, b);
+      const result = await runWorker('multiply', [a,b]);
       res.json({ result });
     } catch (error) {
       res.status(500).send(error);
@@ -108,7 +108,7 @@ function runWorker(operation: string, a: number, b: number): Promise<any> {
     }
   
     try {
-      const result = await runWorker('divide', a, b);
+      const result = await runWorker('divide', [a,b]);
       res.json({ result });
     } catch (error: unknown) {
       //res.status(500).send(error.toString());
