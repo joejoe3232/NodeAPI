@@ -35,14 +35,14 @@ function runWorker(operation: string, params: any[]): Promise<any> {
   
   // API 1: 登入
   app.post('/login', async (req: Request, res: Response) => {
-    const { a, b } = req.body;
+    const { Uid, GameID, Time, Token } = req.body;
   
-    if (typeof a !== 'number' || typeof b !== 'number') {
-      res.status(400).send('Both a and b must be numbers');
+    if (typeof Uid !== 'string' || typeof GameID !== 'string' || typeof Time !== 'string' || typeof Token !== 'string') {
+      res.status(400).send('Must be string');
     }
   
     try {
-      const result = await runWorker('login',[a,b]);
+      const result = await runWorker('login',[Uid,GameID,Time,Token]);
       res.json({ result });
     } catch (error) {
       res.status(500).send(error);
@@ -55,16 +55,16 @@ function runWorker(operation: string, params: any[]): Promise<any> {
     }
   });
   
-  // API 2: 減法
-  app.post('/subtract', async (req: Request, res: Response) => {
-    const { a, b } = req.body;
+  // API 2: 大廳
+  app.post('/Hall', async (req: Request, res: Response) => {
+    const { Uid, GameID, Time, Token } = req.body;
   
-    if (typeof a !== 'number' || typeof b !== 'number') {
-      res.status(400).send('Both a and b must be numbers');
+    if (typeof Uid !== 'string' || typeof GameID !== 'string' || typeof Time !== 'string' || typeof Token !== 'string') {
+      res.status(400).send('Must be string');
     }
   
     try {
-      const result = await runWorker('subtract', [a,b]);
+      const result = await runWorker('Hall', [Uid,GameID,Time,Token]);
       res.json({ result });
     } catch (error) {
       res.status(500).send(error);
@@ -77,16 +77,16 @@ function runWorker(operation: string, params: any[]): Promise<any> {
     }
   });
   
-  // API 3: 乘法
-  app.post('/multiply', async (req: Request, res: Response) => {
-    const { a, b } = req.body;
+  // API 3: Jackpot
+  app.post('/Jackpot', async (req: Request, res: Response) => {
+    const { Uid, GameID, Time, Hall, Token } = req.body;
   
-    if (typeof a !== 'number' || typeof b !== 'number') {
-      res.status(400).send('Both a and b must be numbers');
+    if (typeof Uid !== 'string' || typeof GameID !== 'string' || typeof Hall !== 'string' || typeof Time !== 'string' || typeof Token !== 'string') {
+      res.status(400).send('must be numbers');
     }
   
     try {
-      const result = await runWorker('multiply', [a,b]);
+      const result = await runWorker('Jackpot', [Uid,GameID,Hall,Time,Token]);
       res.json({ result });
     } catch (error) {
       res.status(500).send(error);
@@ -99,8 +99,8 @@ function runWorker(operation: string, params: any[]): Promise<any> {
     }
   });
   
-  // API 4: 除法
-  app.post('/divide', async (req: Request, res: Response) => {
+  // API 4: Level
+  app.post('/Level', async (req: Request, res: Response) => {
     const { a, b } = req.body;
   
     if (typeof a !== 'number' || typeof b !== 'number') {
@@ -108,7 +108,7 @@ function runWorker(operation: string, params: any[]): Promise<any> {
     }
   
     try {
-      const result = await runWorker('divide', [a,b]);
+      const result = await runWorker('Level', [a,b]);
       res.json({ result });
     } catch (error: unknown) {
       //res.status(500).send(error.toString());
