@@ -1,9 +1,11 @@
 import express, { Request, Response } from 'express';
 import { Worker } from 'worker_threads';
  
+// 初始化 Express 應用程式
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
+// 中介軟體設置，使用 JSON 格式
 app.use(express.json());
 
 // 函數來創建 Worker 並處理運算
@@ -120,6 +122,25 @@ function runWorker(operation: string, params: any[]): Promise<any> {
       }
     }
   });
+
+
+
+  // 簡單的路由
+  app.get('/', (req: Request, res: Response) => {
+    res.send('Hello, high concurrency API!');
+  });
+
+  // 高併發測試的示範端點
+  app.get('/compute', (req: Request, res: Response) => {
+    const start = Date.now();
+    
+    // 模擬一個計算密集的任務
+    while (Date.now() - start < 1000) {} // 停滯1秒
+
+    res.send('Computation finished');
+  });
+  
+
   
   // 啟動伺服器
   app.listen(port, () => {
