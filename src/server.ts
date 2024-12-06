@@ -2,7 +2,8 @@ import express, { Request, Response } from 'express';
 import { createServer } from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
 import { Worker } from 'worker_threads';
- 
+import { handleLogin } from './login';
+
 // 初始化 Express 應用程式
 const app = express();
 const port = process.env.PORT || 3000;
@@ -19,7 +20,25 @@ wss.on('connection', (ws: WebSocket) => {
 
   // 收到訊息事件
   ws.on('message', (message) => {
-    console.log('Received:', message.toString());
+    //console.log('Received:', message.toString());
+
+    let _msg:string = message.toString();
+
+    let _command:string = _msg.split('?')[0].trim();
+    
+    switch (_command) {
+      case "100"://登入
+        
+        break;
+      case "160"://大廳資訊
+        
+        break;
+      default:
+        break;
+    }
+
+
+
 
     // 回傳訊息給所有連接的客戶端
     wss.clients.forEach((client) => {
@@ -176,7 +195,7 @@ function runWorker(operation: string, params: any[]): Promise<any> {
   
   // 啟動 HTTP 和 WebSocket 伺服器
   server.listen(port, () => {
-    console.log('HTTP and WebSocket server running on http://localhost:${port}');
+    console.log(`HTTP and WebSocket server running on http://localhost:${port}`);
   });
 
   function isError(error: unknown): error is Error {
