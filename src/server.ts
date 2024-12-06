@@ -1,9 +1,41 @@
 import express, { Request, Response } from 'express';
+import { createServer } from 'http';
+import { WebSocketServer, WebSocket } from 'ws';
 import { Worker } from 'worker_threads';
  
 // 初始化 Express 應用程式
 const app = express();
 const port = process.env.PORT || 3000;
+
+// 建立 HTTP 伺服器
+const server = createServer(app);
+
+// 建立 WebSocket Server
+const wss = new WebSocketServer({ server });
+
+// WebSocket 連線事件
+wss.on('connection', (ws: WebSocket) => {
+  console.log('WebSocket client connected');
+
+  // 收到訊息事件
+  ws.on('message', (message) => {
+    console.log('Received:', message.toString());
+
+    // 回傳訊息給所有連接的客戶端
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(`Server response: ${message}`);
+      }
+    });
+  });
+
+  // 連線關閉事件
+  ws.on('close', () => {
+    console.log('WebSocket client disconnected');
+  });
+});
+
+// Express 路由
 
 // 中介軟體設置，使用 JSON 格式
 app.use(express.json());
@@ -142,9 +174,9 @@ function runWorker(operation: string, params: any[]): Promise<any> {
   
 
   
-  // 啟動伺服器
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+  // 啟動 HTTP 和 WebSocket 伺服器
+  server.listen(port, () => {
+    console.log('HTTP and WebSocket server running on http://localhost:${port}');
   });
 
   function isError(error: unknown): error is Error {
