@@ -28,7 +28,7 @@ wss.on('connection', (ws: WebSocket) => {
     
     switch (_command) {
       case "100"://登入
-        
+      handleLogin(ws, _msg.split('?')[1].trim());
         break;
       case "160"://大廳資訊
         
