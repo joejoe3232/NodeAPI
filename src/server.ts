@@ -3,6 +3,9 @@ import { createServer } from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
 import { Worker } from 'worker_threads';
 import { handleLogin } from './login';
+import { handleHall } from './hall';
+import { handleSeat } from './Seat';
+import { handleTakeASeat } from './Take_A_Seat';
 
 // 初始化 Express 應用程式
 const app = express();
@@ -13,6 +16,15 @@ const server = createServer(app);
 
 // 建立 WebSocket Server
 const wss = new WebSocketServer({ server });
+
+// 廣播函數
+const broadcastMessage = (wss: WebSocketServer, message: string) => {
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(message);
+    }
+  });
+};
 
 // WebSocket 連線事件
 wss.on('connection', (ws: WebSocket) => {
@@ -27,25 +39,31 @@ wss.on('connection', (ws: WebSocket) => {
     let _command:string = _msg.split('?')[0].trim();
     
     switch (_command) {
+
       case "100"://登入
-      handleLogin(ws, _msg.split('?')[1].trim());
+
+        handleLogin(ws, _msg.split('?')[1].trim());
         break;
+
       case "160"://大廳資訊
-        
+
+        handleHall(ws, _msg.split('?')[1].trim());
         break;
+
+      case "300"://座位資訊
+      
+        handleSeat(ws, _msg.split('?')[1].trim());
+        break;
+
+      case "360"://入座
+      
+        handleTakeASeat(ws, _msg.split('?')[1].trim());
+        break;
+
       default:
         break;
     }
 
-
-
-
-    // 回傳訊息給所有連接的客戶端
-    wss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(`Server response: ${message}`);
-      }
-    });
   });
 
   // 連線關閉事件
@@ -53,6 +71,18 @@ wss.on('connection', (ws: WebSocket) => {
     console.log('WebSocket client disconnected');
   });
 });
+
+// 定時公告
+const startAnnouncements = () => {
+  setInterval(() => {
+    const announcement = {"Result":["RBzxs1688,2,1,76,375000,SuperWin"],"LastPID":34634,"success":true,"Message":"","Count":1};
+    broadcastMessage(wss, 'wi999 610 ' + JSON.stringify(announcement));
+  }, 5000); // 每 5 秒發送一次公告
+};
+
+// 啟動公告
+startAnnouncements();
+
 
 // Express 路由
 
