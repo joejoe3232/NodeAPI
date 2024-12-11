@@ -6,6 +6,12 @@ import { handleLogin } from './login';
 import { handleHall } from './hall';
 import { handleSeat } from './Seat';
 import { handleTakeASeat } from './Take_A_Seat';
+import { handleFish } from './fish';
+
+//是否開始跑馬燈
+let isRun:boolean = false;
+let timerid:NodeJS.Timeout;//定時器
+
 
 // 初始化 Express 應用程式
 const app = express();
@@ -60,6 +66,12 @@ wss.on('connection', (ws: WebSocket) => {
         handleTakeASeat(ws, _msg.split('?')[1].trim());
         break;
 
+      case "430"://入座後要求同步魚場
+      
+        startAnnouncements();// 啟動公告
+        handleFish(ws, _msg.split('?')[1].trim());
+        break;
+
       default:
         break;
     }
@@ -74,14 +86,16 @@ wss.on('connection', (ws: WebSocket) => {
 
 // 定時公告
 const startAnnouncements = () => {
-  setInterval(() => {
+  timerid = setInterval(() => {
     const announcement = {"Result":["RBzxs1688,2,1,76,375000,SuperWin"],"LastPID":34634,"success":true,"Message":"","Count":1};
     broadcastMessage(wss, 'wi999 610 ' + JSON.stringify(announcement));
   }, 5000); // 每 5 秒發送一次公告
 };
 
-// 啟動公告
-startAnnouncements();
+//停止定時公告
+const stopAnnouncements = () => {
+  clearInterval(timerid);
+};
 
 
 // Express 路由
